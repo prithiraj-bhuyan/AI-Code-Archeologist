@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Github, Clock, CheckCircle, XCircle, AlertCircle, BarChart3, GitCommit, Users, Calendar, FileText, TrendingUp, Loader2, Play } from 'lucide-react';
+import { Search, Github, Clock, CheckCircle, XCircle, AlertCircle, BarChart3, GitCommit, Users, Calendar, FileText, TrendingUp, Loader2, Play, ArrowRight } from 'lucide-react';
+import TrendChart from './components/TrendChart'; // Adjust the path as needed
+import ArchitectureOverviewChart from './components/ArchitectureOverviewChart'; // Adjust the path as needed
+import QualityMetricsChart from './components/QualityMetricsChart'; // Adjust the path as needed
 
 const API_BASE_URL = 'http://localhost:8000';
 
@@ -422,31 +425,112 @@ const parseInsightsAnalysis = (analysis) => {
 
             {/* AI Insights */}
             {results.insights && (
-              <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                  <AlertCircle className="w-6 h-6 text-purple-600" />
-                  <span>AI Insights</span>
+              <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
+                <h2 className="text-3xl font-bold text-gray-900 mb-8 flex items-center space-x-3">
+                  <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-3 rounded-xl shadow-lg">
+                    <AlertCircle className="w-8 h-8 text-white" />
+                  </div>
+                  <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    AI Insights
+                  </span>
                 </h2>
                 
-                <div className="space-y-6">
+                <div className="space-y-8">
                   {/* Executive Summary */}
                   {results.insights.analysis && (
-                    <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-6">
-                      <h4 className="font-semibold text-gray-900 mb-3">Executive Summary</h4>
-                      <div className="text-gray-700 text-sm">
-                        {parseInsightsAnalysis(results.insights.analysis).executive_summary || 'No summary available'}
+                    <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200 shadow-lg">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-2 rounded-lg shadow-md">
+                          <FileText className="w-6 h-6 text-white" />
+                        </div>
+                        <h4 className="font-bold text-gray-900 text-xl">Executive Summary</h4>
+                      </div>
+                      <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50">
+                        <p className="text-gray-700 leading-relaxed">
+                          {parseInsightsAnalysis(results.insights.analysis).executive_summary || 'No summary available'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Health Score */}
+                  {results.insights.analysis && (
+                    <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-6 border border-blue-200 shadow-lg">
+                      <div className="flex items-center space-x-3 mb-6">
+                        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-2 rounded-lg shadow-md">
+                          <TrendingUp className="w-6 h-6 text-white" />
+                        </div>
+                        <h4 className="font-bold text-gray-900 text-xl">Overall Health Score</h4>
+                      </div>
+                      
+                      <div className="flex items-center space-x-6">
+                        <div className="relative">
+                          <div className={`w-24 h-24 rounded-full flex items-center justify-center shadow-lg ${
+                            Number(parseInsightsAnalysis(results.insights.analysis).overall_health_score || 0) >= 8 
+                              ? 'bg-gradient-to-br from-green-100 to-emerald-200' 
+                              : Number(parseInsightsAnalysis(results.insights.analysis).overall_health_score || 0) >= 6 
+                                ? 'bg-gradient-to-br from-yellow-100 to-orange-200' 
+                                : 'bg-gradient-to-br from-red-100 to-pink-200'
+                          }`}>
+                            <div className={`text-3xl font-bold ${
+                              Number(parseInsightsAnalysis(results.insights.analysis).overall_health_score || 0) >= 8 
+                                ? 'text-green-600' 
+                                : Number(parseInsightsAnalysis(results.insights.analysis).overall_health_score || 0) >= 6 
+                                  ? 'text-yellow-600' 
+                                  : 'text-red-600'
+                            }`}>
+                              {parseInsightsAnalysis(results.insights.analysis).overall_health_score || 0}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex-1">
+                          <div className="flex justify-between text-sm text-gray-600 mb-2">
+                            <span>Repository Health</span>
+                            <span>{parseInsightsAnalysis(results.insights.analysis).overall_health_score || 0}/10</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
+                            <div
+                              className={`h-3 rounded-full shadow-sm ${
+                                Number(parseInsightsAnalysis(results.insights.analysis).overall_health_score || 0) >= 8 
+                                  ? 'bg-gradient-to-r from-green-400 to-emerald-500' 
+                                  : Number(parseInsightsAnalysis(results.insights.analysis).overall_health_score || 0) >= 6 
+                                    ? 'bg-gradient-to-r from-yellow-400 to-orange-500' 
+                                    : 'bg-gradient-to-r from-red-400 to-pink-500'
+                              }`}
+                              style={{
+                                width: `${Number(parseInsightsAnalysis(results.insights.analysis).overall_health_score || 0) * 10}%`,
+                              }}
+                            ></div>
+                          </div>
+                          <div className="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>Poor</span>
+                            <span>Excellent</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}
 
                   {/* Key Strengths */}
                   {results.insights.analysis && (
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6">
-                      <h4 className="font-semibold text-gray-900 mb-3">Key Strengths</h4>
-                      <div className="space-y-2">
+                    <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-6 border-l-4 border-green-400 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <div className="p-2 rounded-lg bg-white shadow-md">
+                          <CheckCircle className="w-6 h-6 text-green-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-900 text-xl">Key Strengths</h4>
+                          <p className="text-sm text-gray-600">What your repository is doing well</p>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
                         {parseInsightsAnalysis(results.insights.analysis).key_strengths?.map((strength, index) => (
-                          <div key={index} className="text-gray-700 text-sm border-l-4 border-blue-300 pl-3">
-                            {strength}
+                          <div key={index} className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-white/50 shadow-sm hover:shadow-md transition-shadow">
+                            <div className="flex items-start space-x-3">
+                              <div className="w-2 h-2 rounded-full bg-green-400 mt-2 flex-shrink-0"></div>
+                              <p className="text-gray-700 text-sm leading-relaxed flex-1">{strength}</p>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -455,12 +539,23 @@ const parseInsightsAnalysis = (analysis) => {
 
                   {/* Critical Areas for Improvement */}
                   {results.insights.analysis && (
-                    <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg p-6">
-                      <h4 className="font-semibold text-gray-900 mb-3">Critical Areas for Improvement</h4>
-                      <div className="space-y-2">
+                    <div className="bg-gradient-to-br from-yellow-50 to-orange-100 rounded-xl p-6 border-l-4 border-yellow-400 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <div className="p-2 rounded-lg bg-white shadow-md">
+                          <AlertCircle className="w-6 h-6 text-yellow-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-900 text-xl">Areas for Improvement</h4>
+                          <p className="text-sm text-gray-600">Priority areas that need attention</p>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
                         {parseInsightsAnalysis(results.insights.analysis).critical_areas_for_improvement?.map((area, index) => (
-                          <div key={index} className="text-gray-700 text-sm border-l-4 border-yellow-300 pl-3">
-                            {area}
+                          <div key={index} className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-white/50 shadow-sm hover:shadow-md transition-shadow">
+                            <div className="flex items-start space-x-3">
+                              <div className="w-2 h-2 rounded-full bg-yellow-400 mt-2 flex-shrink-0"></div>
+                              <p className="text-gray-700 text-sm leading-relaxed flex-1">{area}</p>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -468,58 +563,104 @@ const parseInsightsAnalysis = (analysis) => {
                   )}
 
                   {/* Risk Assessment */}
-                  {results.insights.analysis && (
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6">
-                      <h4 className="font-semibold text-gray-900 mb-3">Risk Assessment</h4>
-                      <div className="space-y-2">
-                        {Array.isArray(parseInsightsAnalysis(results.insights.analysis).risk_assessment) ? (
-                          parseInsightsAnalysis(results.insights.analysis).risk_assessment.map((risk, index) => (
-                            <div key={index} className="text-gray-700 text-sm border-l-4 border-green-300 pl-3">
-                              {risk}
-                            </div>
-                          ))
-                        ) : (
-                          <div className="text-gray-500 text-sm italic">No risk assessment available</div>
-                        )}
+                  {/* {results.insights.analysis && (
+                    <div className="bg-gradient-to-br from-red-50 to-pink-100 rounded-xl p-6 border-l-4 border-red-400 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <div className="p-2 rounded-lg bg-white shadow-md">
+                          <XCircle className="w-6 h-6 text-red-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-900 text-xl">Risk Assessment</h4>
+                          <p className="text-sm text-gray-600">Potential risks and vulnerabilities</p>
+                        </div>
                       </div>
-                    </div>
-                  )}
-
-
-                  {/* Recommended Next Steps */}
-                  {results.insights.analysis && (
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6">
-                      <h4 className="font-semibold text-gray-900 mb-3">Recommended Next Steps</h4>
-                      <div className="space-y-2">
-                        {parseInsightsAnalysis(results.insights.analysis).recommended_next_steps?.map((step, index) => (
-                          <div key={index} className="text-gray-700 text-sm border-l-4 border-green-300 pl-3">
-                            {step}
+                      <div className="space-y-3">
+                        {parseInsightsAnalysis(results.insights.analysis).risk_assessment?.map((risk, index) => (
+                          <div key={index} className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-white/50 shadow-sm hover:shadow-md transition-shadow">
+                            <div className="flex items-start space-x-3">
+                              <div className="w-2 h-2 rounded-full bg-red-400 mt-2 flex-shrink-0"></div>
+                              <p className="text-gray-700 text-sm leading-relaxed flex-1">{risk}</p>
+                            </div>
                           </div>
                         ))}
                       </div>
                     </div>
-                  )}
+                  )} */}
 
-                  {/* Overall Health Score */}
-                  {results.insights.overall_health_score && (
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6">
-                      <h4 className="font-semibold text-gray-900 mb-3">Overall Health Score</h4>
-                      <div className="flex items-center space-x-4">
-                        <div className="text-3xl font-bold text-green-600">
-                          {results.insights.overall_health_score}/10
+                  {/* Recommended Next Steps */}
+                  {results.insights.analysis && (
+                    <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-6 border-l-4 border-blue-400 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <div className="p-2 rounded-lg bg-white shadow-md">
+                          <ArrowRight className="w-6 h-6 text-blue-600" />
                         </div>
-                        <div className="flex-1 bg-gray-200 rounded-full h-4">
-                          <div
-                            className="bg-gradient-to-r from-green-400 to-green-600 h-4 rounded-full"
-                            style={{ width: `${(results.insights.overall_health_score / 10) * 100}%` }}
-                          ></div>
+                        <div>
+                          <h4 className="font-bold text-gray-900 text-xl">Recommended Next Steps</h4>
+                          <p className="text-sm text-gray-600">Actionable steps to improve your codebase</p>
                         </div>
+                      </div>
+                      <div className="space-y-3">
+                        {parseInsightsAnalysis(results.insights.analysis).recommended_next_steps?.map((step, index) => (
+                          <div key={index} className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-white/50 shadow-sm hover:shadow-md transition-shadow">
+                            <div className="flex items-start space-x-3">
+                              <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0"></div>
+                              <p className="text-gray-700 text-sm leading-relaxed flex-1">{step}</p>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   )}
                 </div>
               </div>
             )}
+{results && (
+  <div className="space-y-8">
+    {/* Existing analysis results components */}
+
+    {/* New Visualizations Section */}
+    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+      <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+        <TrendingUp className="w-6 h-6 text-green-600" />
+        <span>Visualizations</span>
+      </h2>
+
+      {/* Trend Chart */}
+      {results.visualizations && results.visualizations.trend_data && (
+        <TrendChart
+          data={results.visualizations.trend_data.timeline.map((week, index) => ({
+            timeline: week,
+            complexity: results.visualizations.trend_data.complexity_trend[index] || 0,
+            debt: results.visualizations.trend_data.debt_trend[index] || 0,
+            quality: results.visualizations.trend_data.quality_trend[index] || 0
+          }))}
+          title="Trends Over Time"
+        />
+      )}
+
+      {/* Architecture Overview Chart */}
+      {results.visualizations && results.visualizations.architectural_overview && (
+        <ArchitectureOverviewChart
+          data={[
+            { name: 'Complexity', complexity: results.visualizations.architectural_overview.complexity || 'Unknown' },
+            { name: 'Pattern', pattern: results.visualizations.architectural_overview.pattern || 'Unknown' }
+          ]}
+        />
+      )}
+
+      {/* Quality Metrics Chart */}
+      {results.visualizations && results.visualizations.quality_metrics && (
+        <QualityMetricsChart
+          data={[
+            { name: 'Code Quality', code_quality: results.visualizations.quality_metrics.code_quality || 0 },
+            { name: 'Maintainability', maintainability: results.visualizations.quality_metrics.maintainability || 0 },
+            { name: 'Technical Debt', technical_debt: results.visualizations.quality_metrics.technical_debt || 0 }
+          ]}
+        />
+      )}
+    </div>
+  </div>
+)}
           </div>
         )}
       </div>
