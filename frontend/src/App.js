@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Github, Clock, CheckCircle, XCircle, AlertCircle, BarChart3, GitCommit, Users, Calendar, FileText, TrendingUp, Loader2, Play, ArrowRight } from 'lucide-react';
-import TrendChart from './components/TrendChart'; // Adjust the path as needed
-import ArchitectureOverviewChart from './components/ArchitectureOverviewChart'; // Adjust the path as needed
-import QualityMetricsChart from './components/QualityMetricsChart'; // Adjust the path as needed
+import EnhancedVisualizations from './components/EnhancedVisualizations';
 
 const API_BASE_URL = 'http://localhost:8000';
 
@@ -614,53 +612,11 @@ const parseInsightsAnalysis = (analysis) => {
                 </div>
               </div>
             )}
-{results && (
-  <div className="space-y-8">
-    {/* Existing analysis results components */}
-
-    {/* New Visualizations Section */}
-    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-        <TrendingUp className="w-6 h-6 text-green-600" />
-        <span>Visualizations</span>
-      </h2>
-
-      {/* Trend Chart */}
-      {results.visualizations && results.visualizations.trend_data && (
-        <TrendChart
-          data={results.visualizations.trend_data.timeline.map((week, index) => ({
-            timeline: week,
-            complexity: results.visualizations.trend_data.complexity_trend[index] || 0,
-            debt: results.visualizations.trend_data.debt_trend[index] || 0,
-            quality: results.visualizations.trend_data.quality_trend[index] || 0
-          }))}
-          title="Trends Over Time"
-        />
-      )}
-
-      {/* Architecture Overview Chart */}
-      {results.visualizations && results.visualizations.architectural_overview && (
-        <ArchitectureOverviewChart
-          data={[
-            { name: 'Complexity', complexity: results.visualizations.architectural_overview.complexity || 'Unknown' },
-            { name: 'Pattern', pattern: results.visualizations.architectural_overview.pattern || 'Unknown' }
-          ]}
-        />
-      )}
-
-      {/* Quality Metrics Chart */}
-      {results.visualizations && results.visualizations.quality_metrics && (
-        <QualityMetricsChart
-          data={[
-            { name: 'Code Quality', code_quality: results.visualizations.quality_metrics.code_quality || 0 },
-            { name: 'Maintainability', maintainability: results.visualizations.quality_metrics.maintainability || 0 },
-            { name: 'Technical Debt', technical_debt: results.visualizations.quality_metrics.technical_debt || 0 }
-          ]}
-        />
-      )}
-    </div>
-  </div>
-)}
+            {results && (
+              <div className="space-y-8">                
+                <EnhancedVisualizations results={results} />
+              </div>
+            )}
           </div>
         )}
       </div>
