@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class AIService:
     """Service for AI-powered code analysis using Gemini"""
     
-    def __init__(self):
+    def __init__(self, max_commits: Optional[int] = None):
         # Configure Gemini API
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
@@ -26,15 +26,18 @@ class AIService:
         
         # Cache for expensive operations
         self.analysis_cache = {}
+        
+        # Set max commits (None means no limit)
+        self.max_commits = max_commits
     
-    async def analyze_codebase(self, repo_data: Dict[str, Any], commit_analysis: Dict[str, Any]) -> Dict[str, Any]:
+    async def analyze_codebase(self, repo_data: Dict[str, Any], commit_analysis: Dict[str, Any], num_commits: Optional[int] = None) -> Dict[str, Any]:
         """Perform comprehensive AI analysis of the codebase"""
         
         try:
             logger.info("Starting AI codebase analysis")
             
-            # Prepare analysis context
-            context = self._prepare_analysis_context(repo_data, commit_analysis)
+            # Prepare analysis context with configurable commit count
+            context = self._prepare_analysis_context(repo_data, commit_analysis, num_commits)
             
             # Run parallel analysis tasks
             tasks = [
@@ -55,23 +58,39 @@ class AIService:
                 "total_files": repo_data["file_structure"]["total_files"],
                 "total_lines": repo_data["file_structure"]["total_lines"],
                 "languages": repo_data["file_structure"]["languages"],
+                "commits_analyzed": len(context["commit_history"]),
                 "analysis_timestamp": datetime.now().isoformat()
             }
             
-            logger.info("Completed AI codebase analysis")
+            logger.info(f"Completed AI codebase analysis for {len(context['commit_history'])} commits")
             return analysis_results
             
         except Exception as e:
             logger.error(f"Error in AI codebase analysis: {e}")
             return {"error": str(e)}
     
-    def _prepare_analysis_context(self, repo_data: Dict[str, Any], commit_analysis: Dict[str, Any]) -> Dict[str, Any]:
-        """Prepare context for AI analysis"""
+    def _prepare_analysis_context(self, repo_data: Dict[str, Any], commit_analysis: Dict[str, Any], num_commits: Optional[int] = None) -> Dict[str, Any]:
+        """Prepare context for AI analysis with configurable commit count"""
+        
+        # Determine how many commits to analyze
+        commits = commit_analysis["commits"]
+        
+        if num_commits is not None:
+            # Use the specified number of commits
+            commits_to_analyze = commits[:num_commits]
+        elif self.max_commits is not None:
+            # Use the instance max_commits limit
+            commits_to_analyze = commits[:self.max_commits]
+        else:
+            # No limit - use all commits
+            commits_to_analyze = commits
+        
+        logger.info(f"Analyzing {len(commits_to_analyze)} out of {len(commits)} total commits")
         
         return {
             "repository_info": repo_data["info"],
             "file_structure": repo_data["file_structure"],
-            "commit_history": commit_analysis["commits"][:10],  # Last 10 commits
+            "commit_history": commits_to_analyze,
             "commit_patterns": commit_analysis["analysis"],
             "repo_path": repo_data["path"]
         }
@@ -80,6 +99,9 @@ class AIService:
         """Analyze the overall architecture of the codebase"""
         
         try:
+            # Use first 5 commits for architecture analysis to avoid token limits
+            recent_commits = context['commit_history'][:5]
+            
             prompt = f"""
             As an expert software architect, analyze this codebase and provide insights:
 
@@ -89,8 +111,8 @@ class AIService:
             - File Types: {context['file_structure']['file_types']}
             - Directories: {context['file_structure']['directories'][:20]}
 
-            Recent Commits:
-            {self._format_commits_for_prompt(context['commit_history'][:5])}
+            Recent Commits ({len(recent_commits)} of {len(context['commit_history'])} total):
+            {self._format_commits_for_prompt(recent_commits)}
 
             Please analyze and provide:
             1. Overall architecture pattern (MVC, Microservices, Monolith, etc.)
@@ -121,7 +143,7 @@ class AIService:
             - Languages: {context['file_structure']['languages']}
             - Large Files: {context['file_structure']['large_files'][:5]}
 
-            Commit Patterns:
+            Commit Patterns (based on {len(context['commit_history'])} commits):
             - Average Commit Size: {context['commit_patterns'].get('average_commit_size', 0)}
             - Total Authors: {context['commit_patterns'].get('total_authors', 0)}
             - Top Authors: {context['commit_patterns'].get('top_authors', [])[:3]}
@@ -148,6 +170,9 @@ class AIService:
         """Identify patterns and design patterns in the codebase"""
         
         try:
+            # Use first 3 commits for pattern analysis
+            recent_commits = context['commit_history'][:3]
+            
             prompt = f"""
             As a software design pattern expert, analyze this codebase:
 
@@ -156,8 +181,8 @@ class AIService:
             - Directories: {context['file_structure']['directories'][:15]}
             - File Types: {context['file_structure']['file_types']}
 
-            Commit History:
-            {self._format_commits_for_prompt(context['commit_history'][:3])}
+            Commit History ({len(recent_commits)} recent of {len(context['commit_history'])} total):
+            {self._format_commits_for_prompt(recent_commits)}
 
             Identify and analyze:
             1. Design patterns used (Singleton, Factory, Observer, etc.)
@@ -190,8 +215,8 @@ class AIService:
             - Languages: {context['file_structure']['languages']}
             - Large Files: {context['file_structure']['large_files'][:5]}
 
-            Commit Analysis:
-            - Recent commits: {len(context['commit_history'])}
+            Commit Analysis (based on {len(context['commit_history'])} commits):
+            - Recent commits analyzed: {len(context['commit_history'])}
             - Top authors: {context['commit_patterns'].get('top_authors', [])[:3]}
 
             Identify technical debt indicators:
@@ -217,10 +242,12 @@ class AIService:
         """Generate high-level insights from analysis results"""
         
         try:
+            commits_analyzed = analysis_results.get('commits_analyzed', 'unknown')
+            
             prompt = f"""
             As a senior software consultant, provide executive insights based on this analysis:
 
-            Analysis Results:
+            Analysis Results (based on {commits_analyzed} commits):
             {json.dumps(analysis_results, indent=2)[:3000]}...
 
             Generate:
@@ -292,7 +319,7 @@ class AIService:
             return "No recent commits available"
         
         formatted = []
-        for commit in commits[:5]:  # Limit to avoid token limits
+        for commit in commits[:5]:  # Limit to 5 to avoid token limits in prompts
             formatted.append(f"- {commit.get('message', 'No message')[:100]}...")
         
         return "\n".join(formatted)
