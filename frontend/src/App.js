@@ -562,7 +562,7 @@ const parseInsightsAnalysis = (analysis) => {
                   )}
 
 {/* Risk Assessment */}
-{results.insights.analysis && (
+{/* {results.insights.analysis && (
   <div className="bg-gradient-to-br from-red-50 to-pink-100 rounded-xl p-6 border-l-4 border-red-400 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
     <div className="flex items-center space-x-3 mb-4">
       <div className="p-2 rounded-lg bg-white shadow-md">
@@ -584,7 +584,7 @@ const parseInsightsAnalysis = (analysis) => {
       ))}
     </div>
   </div>
-)}
+)} */}
 
                   {/* Recommended Next Steps */}
                   {results.insights.analysis && (
