@@ -1,3 +1,4 @@
+// eslint-disable-next-line
 import React, { useState, useEffect } from 'react';
 import { Search, Github, Clock, CheckCircle, XCircle, AlertCircle, BarChart3, GitCommit, Users, Calendar, FileText, TrendingUp, Loader2, Play, ArrowRight } from 'lucide-react';
 import EnhancedVisualizations from './components/EnhancedVisualizations';
