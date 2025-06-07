@@ -19,7 +19,7 @@ class GitHubService:
         
     async def clone_repository(self, github_url: str, commit_count: int) -> Dict[str, Any]:
         """Clone a GitHub repository and extract basic information"""
-        
+    
         try:
             # Create temporary directory
             self.temp_dir = tempfile.mkdtemp(prefix="code_archeologist_")
@@ -30,7 +30,7 @@ class GitHubService:
             repo_path = os.path.join(self.temp_dir, repo_name)
             
             # Clone repository with limited depth for performance
-            clone_depth = min(commit_count + 10, 100)  # Add buffer for commit analysis
+            clone_depth = commit_count - 1  # Remove the buffer
             
             clone_cmd = [
                 "git", "clone", 

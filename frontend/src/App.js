@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Github, Clock, CheckCircle, XCircle, AlertCircle, BarChart3, GitCommit, Users, Calendar, FileText, TrendingUp, Loader2, Play, ArrowRight } from 'lucide-react';
 import EnhancedVisualizations from './components/EnhancedVisualizations';
 
-const API_BASE_URL = 'https://ai-code-archeologist-946787509378.europe-west2.run.app';
+const API_BASE_URL = 'http://localhost:8000';
 
 const Dashboard = () => {
   const [githubUrl, setGithubUrl] = useState('');
@@ -358,7 +358,7 @@ const parseInsightsAnalysis = (analysis) => {
 
                   {results.repository_info.contributors && (
                     <div className="bg-gray-50 rounded-lg p-4">
-                      <h4 className="font-semibold text-gray-900 mb-2">Contributors</h4>
+                      <h4 className="font-semibold text-gray-900 mb-2">Top Contributors</h4>
                       <div className="space-y-1">
                         {results.repository_info.contributors.slice(0, 3).map((contributor, index) => (
                           <div key={index} className="text-sm text-gray-600">
@@ -560,30 +560,30 @@ const parseInsightsAnalysis = (analysis) => {
                     </div>
                   )}
 
-                  {/* Risk Assessment */}
-                  {/* {results.insights.analysis && (
-                    <div className="bg-gradient-to-br from-red-50 to-pink-100 rounded-xl p-6 border-l-4 border-red-400 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                      <div className="flex items-center space-x-3 mb-4">
-                        <div className="p-2 rounded-lg bg-white shadow-md">
-                          <XCircle className="w-6 h-6 text-red-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-gray-900 text-xl">Risk Assessment</h4>
-                          <p className="text-sm text-gray-600">Potential risks and vulnerabilities</p>
-                        </div>
-                      </div>
-                      <div className="space-y-3">
-                        {parseInsightsAnalysis(results.insights.analysis).risk_assessment?.map((risk, index) => (
-                          <div key={index} className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-white/50 shadow-sm hover:shadow-md transition-shadow">
-                            <div className="flex items-start space-x-3">
-                              <div className="w-2 h-2 rounded-full bg-red-400 mt-2 flex-shrink-0"></div>
-                              <p className="text-gray-700 text-sm leading-relaxed flex-1">{risk}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )} */}
+{/* Risk Assessment */}
+{results.insights.analysis && (
+  <div className="bg-gradient-to-br from-red-50 to-pink-100 rounded-xl p-6 border-l-4 border-red-400 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+    <div className="flex items-center space-x-3 mb-4">
+      <div className="p-2 rounded-lg bg-white shadow-md">
+        <XCircle className="w-6 h-6 text-red-600" />
+      </div>
+      <div>
+        <h4 className="font-bold text-gray-900 text-xl">Risk Assessment</h4>
+        <p className="text-sm text-gray-600">Potential risks and vulnerabilities</p>
+      </div>
+    </div>
+    <div className="space-y-3">
+      {parseInsightsAnalysis(results.insights.analysis).risk_assessment?.map((risk, index) => (
+        <div key={index} className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-white/50 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-start space-x-3">
+            <div className="w-2 h-2 rounded-full bg-red-400 mt-2 flex-shrink-0"></div>
+            <p className="text-gray-700 text-sm leading-relaxed">{risk}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
 
                   {/* Recommended Next Steps */}
                   {results.insights.analysis && (

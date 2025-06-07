@@ -274,19 +274,6 @@ const EnhancedVisualizations = ({ results }) => {
         <p className="text-purple-100">Comprehensive insights into your codebase health and trends</p>
       </div>
 
-      {/* Trend Chart */}
-      {visualizations.trend_data && visualizations.trend_data.timeline && (
-        <TrendChart
-          data={visualizations.trend_data.timeline.map((week, index) => ({
-            timeline: week,
-            complexity: visualizations.trend_data.complexity_trend[index] || 0,
-            debt: visualizations.trend_data.debt_trend[index] || 0,
-            quality: visualizations.trend_data.quality_trend[index] || 0
-          }))}
-          title="Trends Over Time"
-        />
-      )}
-
       {/* Architecture Overview Chart */}
       {visualizations.architecture_overview && (
         <ArchitectureOverviewChart
@@ -300,8 +287,21 @@ const EnhancedVisualizations = ({ results }) => {
         />
       )}
 
+      {/* Trend Chart */}
+      {visualizations.trend_data && visualizations.trend_data.timeline && (
+        <TrendChart
+          data={visualizations.trend_data.timeline.map((week, index) => ({
+            timeline: week,
+            complexity: visualizations.trend_data.complexity_trend[index] || 0,
+            debt: visualizations.trend_data.debt_trend[index] || 0,
+            quality: visualizations.trend_data.quality_trend[index] || 0
+          }))}
+          title="Trends Over Time"
+        />
+      )}
+
       {/* Quality Metrics Chart */}
-      {visualizations.quality_metrics && (
+      {/* {visualizations.quality_metrics && (
         <QualityMetricsChart
           data={[
             { 
@@ -318,7 +318,7 @@ const EnhancedVisualizations = ({ results }) => {
             }
           ]}
         />
-      )}
+      )} */}
     </div>
   );
 };
