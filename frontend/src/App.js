@@ -87,29 +87,52 @@ const Dashboard = () => {
       return () => clearInterval(interval);
     }
   }, [currentJobId, isLoading]);
-const parseInsightsAnalysis = (analysis) => {
+
+  const parseInsightsAnalysis = (analysis) => {
   try {
-    // Remove backticks and newlines
-    let cleanedAnalysis = analysis
-      .replace(/`/g, '') // Remove backticks
-      .replace(/\n/g, '') // Remove newlines
-
-    // Isolate the JSON string by finding the first and last curly braces
-    const start = cleanedAnalysis.indexOf('{');
-    const end = cleanedAnalysis.lastIndexOf('}');
+    console.log('Raw analysis:', analysis);
     
-    if (start !== -1 && end !== -1 && end > start) {
-      cleanedAnalysis = cleanedAnalysis.substring(start, end + 1);
-    } else {
-      throw new Error('No valid JSON object found');
+    // If it's already an object, return it
+    if (typeof analysis === 'object' && analysis !== null) {
+      console.log('Analysis is already an object:', analysis);
+      return analysis;
     }
-
-    // Parse the cleaned JSON string
-    console.log('Cleaned Analysis:', cleanedAnalysis);
-    return JSON.parse(cleanedAnalysis);
+    
+    // If it's a string, try to parse it
+    if (typeof analysis === 'string') {
+      // Remove backticks and clean up
+      let cleanedAnalysis = analysis
+        .replace(/```json/g, '') // Remove ```json
+        .replace(/```/g, '') // Remove remaining backticks
+        .replace(/^\s+|\s+$/g, '') // Trim whitespace
+        .replace(/\n\s*/g, ' '); // Replace newlines with spaces
+      
+      console.log('Cleaned analysis string:', cleanedAnalysis);
+      
+      // Try to find JSON object boundaries
+      const start = cleanedAnalysis.indexOf('{');
+      const end = cleanedAnalysis.lastIndexOf('}');
+      
+      if (start !== -1 && end !== -1 && end > start) {
+        cleanedAnalysis = cleanedAnalysis.substring(start, end + 1);
+        console.log('Extracted JSON:', cleanedAnalysis);
+        
+        // Parse the JSON
+        const parsed = JSON.parse(cleanedAnalysis);
+        console.log('Successfully parsed:', parsed);
+        return parsed;
+      } else {
+        console.error('No valid JSON boundaries found');
+        return {};
+      }
+    }
+    
+    console.error('Analysis is neither object nor string:', typeof analysis);
+    return {};
   } catch (error) {
     console.error('Error parsing insights analysis:', error);
-    return {}; // Return an empty object if parsing fails
+    console.error('Failed on input:', analysis);
+    return {};
   }
 };
 
@@ -562,29 +585,62 @@ const parseInsightsAnalysis = (analysis) => {
                   )}
 
 {/* Risk Assessment */}
-{/* {results.insights.analysis && (
-  <div className="bg-gradient-to-br from-red-50 to-pink-100 rounded-xl p-6 border-l-4 border-red-400 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-    <div className="flex items-center space-x-3 mb-4">
-      <div className="p-2 rounded-lg bg-white shadow-md">
-        <XCircle className="w-6 h-6 text-red-600" />
-      </div>
-      <div>
-        <h4 className="font-bold text-gray-900 text-xl">Risk Assessment</h4>
-        <p className="text-sm text-gray-600">Potential risks and vulnerabilities</p>
-      </div>
-    </div>
-    <div className="space-y-3">
-      {parseInsightsAnalysis(results.insights.analysis).risk_assessment?.map((risk, index) => (
-        <div key={index} className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-white/50 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-start space-x-3">
-            <div className="w-2 h-2 rounded-full bg-red-400 mt-2 flex-shrink-0"></div>
-            <p className="text-gray-700 text-sm leading-relaxed">{risk}</p>
-          </div>
+{results.insights.analysis && (() => {
+  const parsedAnalysis = parseInsightsAnalysis(results.insights.analysis);
+  
+  // More robust way to get risk assessment data
+  let riskAssessment = null;
+  
+  if (parsedAnalysis.risk_assessment) {
+    if (Array.isArray(parsedAnalysis.risk_assessment)) {
+      riskAssessment = parsedAnalysis.risk_assessment;
+    } else if (typeof parsedAnalysis.risk_assessment === 'object') {
+      // If it's an object, try to extract array values
+      const values = Object.values(parsedAnalysis.risk_assessment);
+      if (values.length > 0) {
+        // If the first value is an array, use it
+        if (Array.isArray(values[0])) {
+          riskAssessment = values[0];
+        } else {
+          // Otherwise, treat all values as individual items
+          riskAssessment = values.filter(v => typeof v === 'string');
+        }
+      }
+    }
+  }
+  
+  console.log('Final risk assessment:', riskAssessment);
+  
+  return (
+    <div className="bg-gradient-to-br from-red-50 to-pink-100 rounded-xl p-6 border-l-4 border-red-400 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+      <div className="flex items-center space-x-3 mb-4">
+        <div className="p-2 rounded-lg bg-white shadow-md">
+          <XCircle className="w-6 h-6 text-red-600" />
         </div>
-      ))}
+        <div>
+          <h4 className="font-bold text-gray-900 text-xl">Risk Assessment</h4>
+          <p className="text-sm text-gray-600">Potential risks and vulnerabilities</p>
+        </div>
+      </div>
+      <div className="space-y-3">
+        {riskAssessment && riskAssessment.length > 0 ? (
+          riskAssessment.map((risk, index) => (
+            <div key={index} className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-white/50 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-start space-x-3">
+                <div className="w-2 h-2 rounded-full bg-red-400 mt-2 flex-shrink-0"></div>
+                <p className="text-gray-700 text-sm leading-relaxed">{risk}</p>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="bg-yellow-100 p-3 rounded text-sm">
+            No risk assessment data available. Debug: {JSON.stringify(parsedAnalysis.risk_assessment)}
+          </div>
+        )}
+      </div>
     </div>
-  </div>
-)} */}
+  );
+})()}
 
                   {/* Recommended Next Steps */}
                   {results.insights.analysis && (
