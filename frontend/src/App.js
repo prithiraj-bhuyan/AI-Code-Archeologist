@@ -200,7 +200,7 @@ const Dashboard = () => {
             </div>
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
-            AI Code Archeologist
+            Code Archeologist
           </h1>
           <p className="text-gray-600 text-lg">
             Uncover the architectural evolution of GitHub repositories with AI-powered analysis
