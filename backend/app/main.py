@@ -240,7 +240,7 @@ async def run_analysis(job_id: str):
             }
         }
         
-        logger.info(f"Analysis job {job_id} completed successfully")
+        logger.info(f"Analysis job {job_id} completed successfully!")
         
     except Exception as e:
         logger.error(f"Analysis job {job_id} failed: {str(e)}")
