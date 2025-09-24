@@ -2,7 +2,8 @@
 
 ## Overview
 
-AI-Code-Archeologist is a full-stack application designed to analyze, visualize, and interact with codebases using AI-powered tools. It consists of a FastAPI backend and a React frontend.
+AI-Code-Archeologist is a full-stack application designed to analyze, visualize, and interact with codebases using AI-powered tools. It consists of a FastAPI backend and a React frontend. Developed to analyze GitHub repositories, providing intelligent summaries, architectural insights, and potential code improvements. Integrated LLM-powered code parsing and natural language generation with a CI/CD pipeline built on Google Dataflow and GitHub, automating deep analysis of unfamiliar codebases to improve developer onboarding and code review efficiency.
+
 
 ---
 
